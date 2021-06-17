@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 
-timesteps = ['2018A','2019B','2020P','2021P','2022P','2023P']
+timeseries = ['2018A','2019B','2020P','2021P','2022P','2023P']
 
 def get_external_data():
     user_data = UserData.get
@@ -17,7 +17,13 @@ def create_strategy():
     strategy = Strategy()
     strategy.save
 
+def initialise_bank_accounts():
+
+def select_tax_calculations():
+    tax_calculation_set = TaxCalculations()
+
 def calculate_strategy():
+    timeseries = TimeSeries()
     history_match = HistoryMatch()
     forecast = Forecast()
 
