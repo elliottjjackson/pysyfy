@@ -17,10 +17,18 @@ start_timer = timeit.default_timer()
 ui_path = os.path.dirname(os.path.abspath(__file__))
 user_input_dataset_path = os.path.join(ui_path, "dataset/user_input_datasheet.csv")
 historic_house_price_input_dataset_path = os.path.join(ui_path, "dataset/historic_house_price.csv")
+user_data_map = ['date', 'cpi', 'salary', 
+        'sti', 'lti', 'balance_adjustment_at', 
+        'salary_witheld', 'sti_witheld', 'lti_witheld', 
+        'living_expenditure', 'home_loan_repayments', 'home_loan_fees', 
+        'home_loan_interest_rate', 'rental_income', 'rental_costs', 
+        'shares_purchased', 'share_price', 'unfranked_dividends', 
+        'franked_dividends']
+historic_house_price_map = ['date','historic_house_price']
 
-class UserData(FormalCSVImport):
+class CVSImport(FormalCSVImport):
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, map: list):
         self.user_input_df = pd.read_csv(path)
         #Set 'Date' as the row index and extract the 'units declaration' row.
         self.units_series = self.user_input_df.loc[0,:]
@@ -28,39 +36,12 @@ class UserData(FormalCSVImport):
         self.header_list = list(self.user_input_df)
 
         #Standardise dataframe column names
-        self.user_input_df.columns = ['date', 'cpi', 'salary', 
-        'sti', 'lti', 'balance_adjustment_at', 
-        'salary_witheld', 'sti_witheld', 'lti_witheld', 
-        'living_expenditure', 'home_loan_repayments', 'home_loan_fees', 
-        'home_loan_interest_rate', 'rental_income', 'rental_costs', 
-        'shares_purchased', 'share_price', 'unfranked_dividends', 
-        'franked_dividends']
+        self.user_input_df.columns = map
 
         self.user_input_df = self.user_input_df.set_index('date')
 
     def get(self):
         return self.user_input_df
-
-    def display_headers(self):
-        print(self.header_list)
-
-    def display_units(self):
-        print(self.units_series)
-
-class HistoricHousePrice(FormalCSVImport):
-    def __init__(self,path):
-        self.historic_house_price = pd.read_csv(path)
-        self.units_series = self.historic_house_price.loc[0,:]
-        self.historic_house_price = self.historic_house_price.drop([0])
-        self.header_list = list(self.historic_house_price)
-
-        #Standardise dataframe column names
-        self.historic_house_price.columns = ['date','historic_house_price']
-
-        self.historic_house_price = self.historic_house_price.set_index('date')
-
-    def get(self):
-        return self.historic_house_price
 
     def display_headers(self):
         print(self.header_list)
@@ -93,9 +74,9 @@ def get_external_data():
     ticker = ['SDY']
     start_date = '2010/01/01'
     end_date = '2021/01/01'
-    user_data = UserData(user_input_dataset_path)
+    user_data = CVSImport(user_input_dataset_path,user_data_map)
     user_data_table = user_data.get()
-    historic_house_price = HistoricHousePrice(historic_house_price_input_dataset_path)
+    historic_house_price = CVSImport(historic_house_price_input_dataset_path,historic_house_price_map)
     historic_house_price_table = historic_house_price.get()
     stocks = HistoricStockPrice(ticker,start_date,end_date)
     stock_historic = stocks.forecast_format()
