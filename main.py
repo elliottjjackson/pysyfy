@@ -9,25 +9,26 @@ plt.style.use('fivethirtyeight')
 import statsmodels.api as sm
 import matplotlib
 from ArimaModel import ArimaModel
+from base_classes import FormalCSVImport
 
 
 start_timer = timeit.default_timer()
 
 ui_path = os.path.dirname(os.path.abspath(__file__))
-test_dataset_location = os.path.join(ui_path, "test_dataset/test_user_input_datasheet.csv")
+user_input_dataset_path = os.path.join(ui_path, "dataset/user_input_datasheet.csv")
+historic_house_price_input_dataset_path = os.path.join(ui_path, "dataset/historic_house_price.csv")
 
-class UserData:
+class UserData(FormalCSVImport):
 
-    def get():
-        user_input_df = pd.read_csv(test_dataset_location)
+    def __init__(self, path: str):
+        self.user_input_df = pd.read_csv(path)
         #Set 'Date' as the row index and extract the 'units declaration' row.
-        user_input_df.set_index('Date')
-        units_series = user_input_df.loc[0,:]
-        user_input_df = user_input_df.drop([0])
-        header_list = list(user_input_df)
+        self.units_series = self.user_input_df.loc[0,:]
+        self.user_input_df = self.user_input_df.drop([0])
+        self.header_list = list(self.user_input_df)
 
         #Standardise dataframe column names
-        user_input_df.columns = ['date', 'cpi', 'salary', 
+        self.user_input_df.columns = ['date', 'cpi', 'salary', 
         'sti', 'lti', 'balance_adjustment_at', 
         'salary_witheld', 'sti_witheld', 'lti_witheld', 
         'living_expenditure', 'home_loan_repayments', 'home_loan_fees', 
@@ -35,7 +36,37 @@ class UserData:
         'shares_purchased', 'share_price', 'unfranked_dividends', 
         'franked_dividends']
 
-        return user_input_df
+        self.user_input_df = self.user_input_df.set_index('date')
+
+    def get(self):
+        return self.user_input_df
+
+    def display_headers(self):
+        print(self.header_list)
+
+    def display_units(self):
+        print(self.units_series)
+
+class HistoricHousePrice(FormalCSVImport):
+    def __init__(self,path):
+        self.historic_house_price = pd.read_csv(path)
+        self.units_series = self.historic_house_price.loc[0,:]
+        self.historic_house_price = self.historic_house_price.drop([0])
+        self.header_list = list(self.historic_house_price)
+
+        #Standardise dataframe column names
+        self.historic_house_price.columns = ['date','historic_house_price']
+
+        self.historic_house_price = self.historic_house_price.set_index('date')
+
+    def get(self):
+        return self.historic_house_price
+
+    def display_headers(self):
+        print(self.header_list)
+
+    def display_units(self):
+        print(self.units_series)
 
 class HistoricStockPrice:
     def __init__(self,ticker: list,start_date,end_date):
@@ -58,17 +89,19 @@ class HistoricStockPrice:
         self.panel_data = self.panel_data.resample('MS').mean()
         return self.panel_data
 
-
 def get_external_data():
     ticker = ['SDY']
-    start_date = '2010-01-01'
-    end_date = '2021-01-01'
-    user_data = UserData.get()
+    start_date = '2010/01/01'
+    end_date = '2021/01/01'
+    user_data = UserData(user_input_dataset_path)
+    user_data_table = user_data.get()
+    historic_house_price = HistoricHousePrice(historic_house_price_input_dataset_path)
+    historic_house_price_table = historic_house_price.get()
     stocks = HistoricStockPrice(ticker,start_date,end_date)
     stock_historic = stocks.forecast_format()
-    match_start_date = '2019-01-01'
-    stock_arima_model = ArimaModel(stock_historic,match_start_date,150)
-    stock_forecast = stock_arima_model.get_forecast()
+    match_start_date = '2019/01/01'
+    # stock_arima_model = ArimaModel(stock_historic,match_start_date,150)
+    # stock_forecast = stock_arima_model.get_forecast()
     # house_price = HistoricHousePrice.get
     # CPI = HistoricCPI.get
     # mortgage_interest = BankLoanInterestRate.get_mortgage_rate

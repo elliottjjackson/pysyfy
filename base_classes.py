@@ -122,25 +122,58 @@ class FormalHouseClass(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
 
-class HouseClass(FormalHouseClass):
-    def __init__(self,initial_price,start_date):
-        self.initial_price = initial_price
-        self.start_date = start_date
+class FormalCSVImport(metaclass=abc.ABCMeta):
+    @classmethod
+    def __subclasshook__(cls,subclass):
+        return (hasattr(subclass,'__init__') and
+        callable(subclass.__init__) and
+        hasattr(subclass,'get') and
+        callable(subclass.get) and
+        hasattr(subclass,'display_headers') and
+        callable(subclass.display_headers) and
+        hasattr(subclass,'display_units') and
+        callable(subclass.display_units))
+    
+    @abc.abstractclassmethod
+    def __init__(self,initial_price: float = 0, start_date = '1900-01-01'):
+        """Placeholder description"""
+        raise NotImplementedError
 
-    def check_loan():
-        return None
-    def get_loan():
-        return None
-    def get_price():
-        return None
-    def sell():
-        return None
-    def get_forecast():
-        return None
-    def get_expenses():
-        return None
+    @abc.abstractmethod
+    def get(self):
+        """Placeholder description"""
+        raise NotImplementedError
+    
+    @abc.abstractmethod
+    def display_headers(self):
+        """Placeholder description"""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def display_units(self, placeholder):
+        """Placeholder description"""
+        raise NotImplementedError
+
+
+# class HouseClass(FormalHouseClass):
+#     def __init__(self,initial_price,start_date):
+#         self.initial_price = initial_price
+#         self.start_date = start_date
+
+#     def check_loan():
+#         return None
+#     def get_loan():
+#         return None
+#     def get_price():
+#         return None
+#     def sell():
+#         return None
+#     def get_forecast():
+#         return None
+#     def get_expenses():
+#         return None
 
     
-Home = HouseClass(500_000,'2015-12-26')
-print(Home.initial_price)
-print(Home.start_date)
+# Home = HouseClass(500_000,'2015-12-26')
+# print(Home.initial_price)
+# print(Home.start_date)
