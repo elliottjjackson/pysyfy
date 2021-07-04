@@ -14,9 +14,19 @@ from base_classes import FormalCSVImport
 
 start_timer = timeit.default_timer()
 
-ui_path = os.path.dirname(os.path.abspath(__file__))
-user_input_dataset_path = os.path.join(ui_path, "dataset/user_input_datasheet.csv")
-historic_house_price_input_dataset_path = os.path.join(ui_path, "dataset/historic_house_price.csv")
+def absolute_path(rel_path: str):
+    ui_path = os.path.dirname(os.path.abspath(__file__))
+    result = os.path.join(ui_path, rel_path)
+    return result
+
+user_input_dataset_path = absolute_path("dataset/user_input_datasheet.csv")
+historic_house_price_dataset_path = absolute_path("dataset/historic_house_price.csv")
+simulated_house_price_dataset_path = absolute_path("dataset/simulated_house_price.csv")
+historic_CPI_dataset_path = absolute_path("dataset/historic_CPI.csv")
+simulated_interest_rate_dataset_path = absolute_path("dataset/simulated_interest_rates.csv")
+historic_interest_rate_dataset_path = absolute_path("dataset/historic_interest_rates.csv")
+LMI_dataset_path = absolute_path("dataset/LMI.csv")
+
 user_data_map = ['date', 'cpi', 'salary', 
         'sti', 'lti', 'balance_adjustment_at', 
         'salary_witheld', 'sti_witheld', 'lti_witheld', 
@@ -25,8 +35,17 @@ user_data_map = ['date', 'cpi', 'salary',
         'shares_purchased', 'share_price', 'unfranked_dividends', 
         'franked_dividends']
 historic_house_price_map = ['date','historic_house_price']
+simulated_house_price_map = ['date','simulated_house_price']
+historic_CPI_map = ['date','CPI']
+LMI_map = ['LVR','>300K','300K-500K','500K-600K','600K-750K','750K-1M']
+#LVR - Loan to Value Ratio, lower bound does not including the value. e.g. $300,001 - $500,000
+historic_interest_rate_map = ['date','historic_current_home_loan_interest_rate',
+'aus_historic_variable_home_loan_interest_rate','adjusted_aus_variable_home_loan_interest_rate',
+'historic_HISA_rate']
+simulated_interest_rate_map = ['date','simulated_current_home_loan_interest_rate','simulated_HISA_rate']
 
-class CVSImport(FormalCSVImport):
+
+class CSVImport(FormalCSVImport):
 
     def __init__(self, path: str, map: list):
         self.user_input_df = pd.read_csv(path)
@@ -38,7 +57,7 @@ class CVSImport(FormalCSVImport):
         #Standardise dataframe column names
         self.user_input_df.columns = map
 
-        self.user_input_df = self.user_input_df.set_index('date')
+        self.user_input_df = self.user_input_df.set_index(map[0])
 
     def get(self):
         return self.user_input_df
@@ -74,20 +93,32 @@ def get_external_data():
     ticker = ['SDY']
     start_date = '2010/01/01'
     end_date = '2021/01/01'
-    user_data = CVSImport(user_input_dataset_path,user_data_map)
+
+    user_data = CSVImport(user_input_dataset_path,user_data_map)
     user_data_table = user_data.get()
-    historic_house_price = CVSImport(historic_house_price_input_dataset_path,historic_house_price_map)
+    historic_house_price = CSVImport(historic_house_price_dataset_path,historic_house_price_map)
     historic_house_price_table = historic_house_price.get()
+    simulated_house_price = CSVImport(simulated_house_price_dataset_path,simulated_house_price_map)
+    simulated_house_price_table = simulated_house_price.get()
+    historic_CPI = CSVImport(historic_CPI_dataset_path,historic_CPI_map)
+    historic_CPI_table = historic_CPI.get()
+    simulated_interest_rate = CSVImport(simulated_interest_rate_dataset_path,simulated_interest_rate_map)
+    simulated_interest_rate_table = simulated_interest_rate.get()
+    historic_interest_rate = CSVImport(historic_interest_rate_dataset_path,historic_interest_rate_map)
+    historic_interest_rate_table = historic_interest_rate.get()
+    LMI_object = CSVImport(LMI_dataset_path,LMI_map)
+    LMI_table = LMI_object.get()
+
     stocks = HistoricStockPrice(ticker,start_date,end_date)
     stock_historic = stocks.forecast_format()
     match_start_date = '2019/01/01'
     # stock_arima_model = ArimaModel(stock_historic,match_start_date,150)
     # stock_forecast = stock_arima_model.get_forecast()
-    # house_price = HistoricHousePrice.get
-    # CPI = HistoricCPI.get
-    # mortgage_interest = BankLoanInterestRate.get_mortgage_rate
-    # HISA_interest = BankLoanInterestRate.get_HISA_rate
-    # LMI = LMIRate.get
+    # stock_arima_model.plot_decomposition()
+    # stock_arima_model.print_arima_summary_table()
+    # stock_arima_model.plot_arima_diagnostics()
+    # stock_arima_model.plot_history_match()
+    # stock_arima_model.plot_forecast()
 
 def create_strategy():
     strategy = Strategy()
