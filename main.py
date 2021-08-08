@@ -43,6 +43,10 @@ historic_interest_rate_map = ['date','historic_current_home_loan_interest_rate',
 'aus_historic_variable_home_loan_interest_rate','adjusted_aus_variable_home_loan_interest_rate',
 'historic_HISA_rate']
 simulated_interest_rate_map = ['date','simulated_current_home_loan_interest_rate','simulated_HISA_rate']
+user_strategy_input = {
+'home':1,
+'stocks':2,
+'property':2}
 
 
 class CSVImport(FormalCSVImport):
@@ -89,6 +93,7 @@ class HistoricStockPrice:
         self.panel_data = self.panel_data.resample('MS').mean()
         return self.panel_data
 
+
 def get_external_data():
     ticker = ['SDY']
     start_date = '2010/01/01'
@@ -120,9 +125,46 @@ def get_external_data():
     # stock_arima_model.plot_history_match()
     # stock_arima_model.plot_forecast()
 
+class StrategyConstructor():
+    """Generates dictionary with example type:
+    {
+    'strategy_name': ['strat_1_stocks','strat_2_stocks','strat_1_home','strat_1_property','strat_2_property]
+    'strategy_type': ['stocks','stocks','home','property','property']
+    }
+    """
+    def __init__(self,user_strategy_input):
+        #replace user_strategy_input with user input functionality
+        strategy_object_dict = {
+        'strategy_name':[],
+        'strategy_type':[]}
+        self.strategy_object_dict = strategy_object_dict
+        self.user_strategy_input = user_strategy_input
+    
+    def _add(self,number_of_strats,strat_name,strat_type):
+        for num in range(number_of_strats):
+            self.strategy_object_dict['strategy_name'].append('strat_'+str(num+1)+'_'+strat_type)
+            self.strategy_object_dict['strategy_type'].append(strat_type)
+
+    def add_stocks(self):
+        self._add(self.user_strategy_input['stocks'],'stocks','stocks')
+
+    def add_house(self):
+        self._add(self.user_strategy_input['home'],'home','home')
+    
+    def add_property(self):
+        self._add(self.user_strategy_input['property'],'property','property')
+
+    def print_strategies(self):
+        print(pd.DataFrame(self.strategy_object_dict))
+
+class BankAccountContructor():
+    def __init__(self):
+        pass
+
 def create_strategy():
-    strategy = Strategy()
-    strategy.save
+    strategy = StrategyConstructor(user_strategy_input)
+    return strategy
+    # strategy.save
 
 def initialise_bank_accounts():
     pass
@@ -135,15 +177,20 @@ def calculate_strategy():
     history_match = HistoryMatch()
     forecast = Forecast()
 
-get_external_data()
-# create_strategy()
-# calculate_strategy()
-# dashboard.update
-# dashboard.display
+if __name__ == "__main__":
+    get_external_data()
+    strategy = create_strategy()
+    # calculate_strategy()
+    # dashboard.update
+    # dashboard.display
+    strategy.add_house()
+    strategy.add_property()
+    strategy.add_stocks()
+    strategy.print_strategies()
 
-# save_state()
+    # save_state()
 
-stop_timer = timeit.default_timer()
+    stop_timer = timeit.default_timer()
 
 
 print('Time: ',stop_timer - start_timer)
