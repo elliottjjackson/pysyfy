@@ -260,7 +260,7 @@ def create_strategy(strategy_input_table):
 
 
 def select_tax_calculations(year):
-    tax_regime_FY20 = TaxRegimeClass(2020)  # prevent copies of the same class?
+    tax_regime_FY20 = TaxRegimeClass(2020)  # prevent copies of the same class
     return tax_regime_FY20
 
 
