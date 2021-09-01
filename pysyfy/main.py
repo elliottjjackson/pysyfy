@@ -1,40 +1,40 @@
+import datetime
+import os
+import timeit
+from typing import Any, Dict, List
+
+import matplotlib.pyplot as plt
+import pandas as pd
 from ArimaModel import ArimaModel
 from base_classes import FormalCSVImport
-from typing import Type
-import datetime
-import pandas as pd
-import numpy as np
-import os
 from pandas_datareader import data
-import timeit
-import itertools
-import matplotlib.pyplot as plt
 
 plt.style.use("fivethirtyeight")
-import statsmodels.api as sm
-import matplotlib
-
 
 start_timer = timeit.default_timer()
 
 
-def absolute_path(rel_path: str):
+def absolute_path(rel_path: str) -> str:
     ui_path = os.path.dirname(os.path.abspath(__file__))
     result = os.path.join(ui_path, rel_path)
     return result
 
 
-user_input_dataset_path = absolute_path("dataset/user_input_datasheet.csv")
-historic_house_price_dataset_path = absolute_path("dataset/historic_house_price.csv")
-simulated_house_price_dataset_path = absolute_path("dataset/simulated_house_price.csv")
-historic_CPI_dataset_path = absolute_path("dataset/historic_CPI.csv")
+user_input_dataset_path = absolute_path("../dataset/user_input_datasheet.csv")
+historic_house_price_dataset_path = absolute_path(
+    "../dataset/historic_house_price.csv"
+)
+simulated_house_price_dataset_path = absolute_path(
+    "../dataset/simulated_house_price.csv"
+)
+historic_CPI_dataset_path = absolute_path("../dataset/historic_CPI.csv")
 simulated_interest_rate_dataset_path = absolute_path(
-    "dataset/simulated_interest_rates.csv"
+    "../dataset/simulated_interest_rates.csv"
 )
 historic_interest_rate_dataset_path = absolute_path(
-    "dataset/historic_interest_rates.csv"
+    "../dataset/historic_interest_rates.csv"
 )
-LMI_dataset_path = absolute_path("dataset/LMI.csv")
+LMI_dataset_path = absolute_path("../dataset/LMI.csv")
 
 user_data_map = [
     "date",
@@ -78,8 +78,9 @@ simulated_interest_rate_map = [
 
 
 class CSVImport(FormalCSVImport):
-    def __init__(self, path: str, map: list):
-        self.user_input_df = pd.read_csv(path)
+    def __init__(self, path: str, map: List[str]) -> None:
+        # latin1 encoding required over utf-8
+        self.user_input_df = pd.read_csv(path, encoding="latin1")
         # Set 'Date' as the row index and
         # extract the 'units declaration' row
         self.units_series = self.user_input_df.loc[0, :]
@@ -91,39 +92,43 @@ class CSVImport(FormalCSVImport):
 
         self.user_input_df = self.user_input_df.set_index(map[0])
 
-    def get(self):
+    def get(self) -> pd.DataFrame:
         return self.user_input_df
 
-    def display_headers(self):
+    def display_headers(self) -> None:
         print(self.header_list)
 
-    def display_units(self):
+    def display_units(self) -> None:
         print(self.units_series)
 
 
 class HistoricStockPrice:
-    def __init__(self, ticker: list, start_date, end_date):
+    def __init__(self, ticker: List[str], start_date: str, end_date: str):
         self.ticker = ticker
         self.start_date = start_date
         self.end_date = end_date
         # Data reader connects to a source and displays stock data between dates.
         # Sources: https://pandas-datareader.readthedocs.io/en/latest/remote_data.html
-        self.panel_data = data.DataReader(ticker, "stooq", start_date, end_date)
+        self.panel_data = data.DataReader(
+            ticker, "stooq", start_date, end_date
+        )
 
-    def get(self):
+    def get(self) -> pd.DataFrame:
         """Return dataframe of defined tickers. +1.8 seconds to run time"""
         return self.panel_data
 
-    def forecast_format(self):
+    def forecast_format(self) -> pd.DataFrame:
         """For future: Rewrite code to be dynamic for different headers"""
-        self.panel_data.drop(["Close", "High", "Low", "Volume"], axis=1, inplace=True)
+        self.panel_data.drop(
+            ["Close", "High", "Low", "Volume"], axis=1, inplace=True
+        )
         # panel_data = panel_data.sort_values('Open')
         self.panel_data.columns = ["Open"]
         self.panel_data = self.panel_data.resample("MS").mean()
         return self.panel_data
 
 
-def get_external_data():
+def get_external_data() -> None:
     ticker = ["SDY"]
     start_date = "2010/01/01"
     end_date = "2021/01/01"
@@ -154,13 +159,13 @@ def get_external_data():
     stocks = HistoricStockPrice(ticker, start_date, end_date)
     stock_historic = stocks.forecast_format()
     match_start_date = "2019/01/01"
-    # stock_arima_model = ArimaModel(stock_historic,match_start_date,150)
-    # stock_forecast = stock_arima_model.get_forecast()
-    # stock_arima_model.plot_decomposition()
-    # stock_arima_model.print_arima_summary_table()
-    # stock_arima_model.plot_arima_diagnostics()
-    # stock_arima_model.plot_history_match()
-    # stock_arima_model.plot_forecast()
+    stock_arima_model = ArimaModel(stock_historic, match_start_date, 150)
+    stock_forecast = stock_arima_model.get_forecast()
+    stock_arima_model.plot_decomposition()
+    stock_arima_model.print_arima_summary_table()
+    stock_arima_model.plot_arima_diagnostics()
+    stock_arima_model.plot_history_match()
+    stock_arima_model.plot_forecast()
 
 
 class StrategyConstructor:
@@ -180,77 +185,84 @@ class StrategyConstructor:
     }
     """
 
-    def __init__(self, user_strategy_input):
+    def __init__(self, user_strategy_input: Dict[str, int]) -> None:
         # replace user_strategy_input with user input functionality
-        strategy_object_dict = {"strategy_name": [], "strategy_type": []}
+        strategy_object_dict: Dict[str, List[str]] = {
+            "strategy_name": [],
+            "strategy_type": [],
+        }
         self.strategy_object_dict = strategy_object_dict
         self.user_strategy_input = user_strategy_input
 
-    def _add(self, number_of_strats, strat_type):
+    def _add(self, number_of_strats: int, strat_type: str) -> None:
         for num in range(number_of_strats):
             self.strategy_object_dict["strategy_name"].append(
                 "strat_" + str(num + 1) + "_" + strat_type
             )
             self.strategy_object_dict["strategy_type"].append(strat_type)
 
-    def add_stocks(self):
+    def add_stocks(self) -> None:
         self._add(self.user_strategy_input["stocks"], "Stocks")
 
-    def add_house(self):
+    def add_house(self) -> None:
         self._add(self.user_strategy_input["home"], "Home")
 
-    def add_property(self):
+    def add_property(self) -> None:
         self._add(self.user_strategy_input["property"], "Property")
 
-    def print_strategies(self):
+    def print_strategies(self) -> None:
         print(pd.DataFrame(self.strategy_object_dict))
 
 
 class BankAccountContructor:
-    def __init__(self):
-        bankaccounts_object_dict = {
+    def __init__(self) -> None:
+        bankaccounts_object_dict: Dict[str, List[Any]] = {
             "account_name": [],
             "account_type": [],
             "balance": [],
         }
         self.bankaccounts_object_dict = bankaccounts_object_dict
 
-    def create_account(self, name: str, type: str, balance: float):
+    def create_account(self, name: str, type: str, balance: float) -> None:
         self.bankaccounts_object_dict["account_name"].append(name)
         self.bankaccounts_object_dict["account_type"].append(type)
         self.bankaccounts_object_dict["balance"].append(balance)
 
-    def print_bankaccounts(self):
+    def print_bankaccounts(self) -> None:
         print(pd.DataFrame(self.bankaccounts_object_dict))
 
 
-tax_regime_list = []
+tax_regime_list: List[str] = []
 
 
 class TaxRegimeClass:
-    def __init__(self, financial_year: int):
-        self.financial_year = financial_year
+    def __init__(self, financial_year: int) -> None:
+        self.financial_year = int(financial_year)
         try:
-            tax_regime_list.index(self.financial_year)
+            tax_regime_list.index(str(self.financial_year))
         except ValueError:
-            tax_regime_list.append(self.financial_year)
+            tax_regime_list.append(str(self.financial_year))
 
-    def start_date(self):
+    def start_date(self) -> datetime.datetime:
         return datetime.datetime(self.financial_year, 7, 1)
 
-    def end_date(self):
+    def end_date(self) -> datetime.datetime:
         return datetime.datetime(self.financial_year + 1, 7, 1)
 
 
-def initialise_bankaccounts():
+def initialise_bankaccounts() -> BankAccountContructor:
     bankaccounts = BankAccountContructor()
     bankaccounts.create_account("Home Loan", "Mortgage", -50_000)
-    bankaccounts.create_account("Investment Property 1 Mortgage", "Mortgage", -20_000)
+    bankaccounts.create_account(
+        "Investment Property 1 Mortgage", "Mortgage", -20_000
+    )
     bankaccounts.create_account("Savings Account", "HISA", 40_000)
     return bankaccounts
 
 
-def create_strategy(strategy_input_table):
+def create_strategy(
+    strategy_input_table: Dict[str, int]
+) -> StrategyConstructor:
     strategy = StrategyConstructor(strategy_input_table)
     strategy.add_house()
     strategy.add_property()
@@ -259,15 +271,16 @@ def create_strategy(strategy_input_table):
     # strategy.save
 
 
-def select_tax_calculations(year):
+def select_tax_calculations(year: int) -> TaxRegimeClass:
     tax_regime_FY20 = TaxRegimeClass(2020)  # prevent copies of the same class
     return tax_regime_FY20
 
 
-def calculate_strategy():
-    timeseries = TimeSeries()
-    history_match = HistoryMatch()
-    forecast = Forecast()
+def calculate_strategy() -> None:
+    # timeseries = TimeSeries()
+    # history_match = HistoryMatch()
+    # forecast = Forecast()
+    pass
 
 
 if __name__ == "__main__":

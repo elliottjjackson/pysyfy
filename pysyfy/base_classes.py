@@ -1,10 +1,11 @@
-from abc import ABC, abstractmethod
 import abc
+from abc import ABC, abstractmethod
+from typing import Any
 
 
 class FormalStockClass(metaclass=abc.ABCMeta):
     @classmethod
-    def __subclasshook__(cls, subclass):
+    def __subclasshook__(cls, subclass) -> bool:  # type: ignore
         return (
             hasattr(subclass, "__init__")
             and callable(subclass.__init__)
@@ -27,54 +28,54 @@ class FormalStockClass(metaclass=abc.ABCMeta):
         )
 
     @abc.abstractmethod
-    def __init__(self, placeholder: float):
+    def __init__(self, placeholder: float) -> None:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def purchase_stock(self, placeholder: float):
+    def purchase_stock(self, placeholder: float) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def sell(self, placeholder: float):
+    def sell(self, placeholder: float) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_price(self, placeholder):
+    def get_price(self, placeholder: float) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def check_dividend(self, placeholder: float):
+    def check_dividend(self, placeholder: float) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_dividend_strategy(self, placeholder: float):
+    def get_dividend_strategy(self, placeholder: float) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def reinvest_dividend(self, placeholder: float):
+    def reinvest_dividend(self, placeholder: float) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def sell_dividend(self, placeholder: float):
+    def sell_dividend(self, placeholder: float) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_forecast(self, placeholder: str):
+    def get_forecast(self, placeholder: str) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
 
 class FormalHouseClass(metaclass=abc.ABCMeta):
     @classmethod
-    def __subclasshook__(cls, subclass):
+    def __subclasshook__(cls, subclass) -> bool:  # type: ignore
         return (
             hasattr(subclass, "__init__")
             and callable(subclass.__init__)
@@ -93,44 +94,46 @@ class FormalHouseClass(metaclass=abc.ABCMeta):
         )
 
     @abc.abstractclassmethod
-    def __init__(self, initial_price: float = 0, start_date="1900-01-01"):
+    def __init__(
+        self, initial_price: float = 0, start_date: str = "1900-01-01"
+    ) -> None:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def check_loan(self):
+    def check_loan(self) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_loan(self):
+    def get_loan(self) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_price(self, placeholder):
+    def get_price(self, placeholder: float) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def sell(self, placeholder: float):
+    def sell(self, placeholder: float) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_forecast(self, placeholder: float):
+    def get_forecast(self, placeholder: float) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_expenses(self, placeholder: float):
+    def get_expenses(self, placeholder: float) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
 
 class FormalCSVImport(metaclass=abc.ABCMeta):
     @classmethod
-    def __subclasshook__(cls, subclass):
+    def __subclasshook__(cls, subclass) -> bool:  # type: ignore
         return (
             hasattr(subclass, "__init__")
             and callable(subclass.__init__)
@@ -143,22 +146,24 @@ class FormalCSVImport(metaclass=abc.ABCMeta):
         )
 
     @abc.abstractclassmethod
-    def __init__(self, initial_price: float = 0, start_date="1900-01-01"):
+    def __init__(
+        self, initial_price: float = 0, start_date: str = "1900-01-01"
+    ) -> None:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get(self):
+    def get(self) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def display_headers(self):
+    def display_headers(self) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def display_units(self, placeholder):
+    def display_units(self, placeholder: float) -> Any:
         """Placeholder description"""
         raise NotImplementedError
 
